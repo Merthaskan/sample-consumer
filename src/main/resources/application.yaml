@@ -1,0 +1,31 @@
+spring:
+  profiles:
+    active: demo
+  application:
+    name: sampleconsumer
+
+
+rabbit:
+  retry-policy:
+    max-attempt: 1
+    initial-interval: 2000
+    multiplier: 1.0
+    max-interval: 2000
+  recover:
+    delayed-message-queue-prefix: .delayed_message
+    delay-millisecond: 60000
+  event:
+    exchange: trendyol.demo.exchange
+    queue:  trendyol.demo.consume.queue
+    delay-queue: trendyol.demo.consume.queue.delayed_message
+
+---
+spring:
+  profiles: demo
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
