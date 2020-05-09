@@ -1,4 +1,4 @@
-# Sample Consumer
+# Sample Consumer [![Build Status](https://travis-ci.com/Merthaskan/sample-consumer.svg?branch=master)](https://travis-ci.com/Merthaskan/sample-consumer)
 Bu proje delayed message yöntemini göstermek için yapılmıştır. Projenin çalışma yapısı aşağıdaki şekildedir.\
 ![QueueStructure](./docs/Project.png)
 
