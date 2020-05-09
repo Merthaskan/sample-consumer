@@ -24,6 +24,10 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 @Configuration
 public class RabbitConfiguration {
+
+    /*
+    Creates Connection to RabbitMQ
+     */
     @Bean
     @Primary
     public ConnectionFactory rabbitConnectionFactory(RabbitProperties rabbitProperties, @Value("${spring.application.name}") String appName) {
@@ -37,11 +41,17 @@ public class RabbitConfiguration {
         return cachingConnectionFactory;
     }
 
+    /*
+    Creates RabbitAdmin which used for admin operations on RabbitMQ
+     */
     @Bean
     public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
         return new RabbitAdmin(connectionFactory);
     }
 
+    /*
+    Creates consume queue using with RabbitAdmin
+     */
     @Bean
     public Queue createConsumeQueue(RabbitAdmin rabbitAdmin, RabbitConfigurationProperties properties) {
         Queue consumeQueue = QueueBuilder.durable(properties.getEvent().getQueue()).build();
@@ -49,6 +59,9 @@ public class RabbitConfiguration {
         return consumeQueue;
     }
 
+    /*
+    Creates delayed message queue using with RabbitAdmin
+    */
     @Bean
     public Queue createDelayedMessageQueue(RabbitAdmin rabbitAdmin, RabbitConfigurationProperties properties) {
         Queue delayedMessageQueue = QueueBuilder.durable(properties.getEvent().getDelayQueue())
@@ -60,18 +73,27 @@ public class RabbitConfiguration {
         return delayedMessageQueue;
     }
 
+    /*
+    Creates exchange using with RabbitAdmin
+    */
     @Bean
-    public TopicExchange createConsumeExchange(RabbitAdmin rabbitAdmin,RabbitConfigurationProperties properties){
+    public TopicExchange createConsumeExchange(RabbitAdmin rabbitAdmin, RabbitConfigurationProperties properties) {
         TopicExchange exchange = new TopicExchange(properties.getEvent().getExchange());
         exchange.setAdminsThatShouldDeclare(rabbitAdmin);
         return exchange;
     }
 
+    /*
+    Creates binding between queue and exchange using with RabbitAdmin
+     */
     @Bean
-    public Binding createQueueExchangeBinding(RabbitConfigurationProperties properties){
-        return new Binding(properties.getEvent().getQueue(),Binding.DestinationType.QUEUE,properties.getEvent().getExchange(),"#",null);
+    public Binding createQueueExchangeBinding(RabbitConfigurationProperties properties) {
+        return new Binding(properties.getEvent().getQueue(), Binding.DestinationType.QUEUE, properties.getEvent().getExchange(), "#", null);
     }
 
+    /*
+    Creates RetryInterceptor for Exception Handling
+     */
     @Bean
     public RetryOperationsInterceptor mqRetryInterceptor(MessageRecoverer messageRecoverer, RabbitConfigurationProperties configurationProperties) {
         return RetryInterceptorBuilder.stateless()
@@ -83,11 +105,17 @@ public class RabbitConfiguration {
                 .build();
     }
 
+    /*
+    Create message converter for RabbitMQ listener
+     */
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
+    /*
+    Creates Transactional RabbitTemplate
+     */
     @Bean
     @Primary
     public RabbitTemplate rabbitTemplate(RabbitAdmin rabbitAdmin, Jackson2JsonMessageConverter jackson2JsonMessageConverter) {
@@ -97,6 +125,9 @@ public class RabbitConfiguration {
         return rabbitTemplate;
     }
 
+    /*
+    Creates Rabbit Listener and assigns RetryInterceptor
+     */
     @Bean
     public RabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory rabbitConnectionFactory,
                                                                          Jackson2JsonMessageConverter jackson2JsonMessageConverter,

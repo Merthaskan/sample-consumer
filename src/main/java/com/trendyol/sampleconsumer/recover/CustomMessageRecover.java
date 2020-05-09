@@ -16,8 +16,10 @@ public class CustomMessageRecover implements MessageRecoverer {
     @Override
     public void recover(Message message, Throwable throwable) {
         for (RabbitStrategy rabbitStrategy: rabbitStrategies) {
+            //Checks Strategy is suited for exception and message
             boolean isSuccess = rabbitStrategy.process(message,throwable);
             if (isSuccess){
+                //Apply suitable strategy
                 rabbitStrategy.recover(message,throwable);
                 break;
             }
