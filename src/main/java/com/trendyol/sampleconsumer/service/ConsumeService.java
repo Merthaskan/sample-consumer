@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsumeService {
     public void consumeSampleEvent(SampleEvent event) {
-        int idLastTwoDigit = event.getMessageId() % 100;
-        if (idLastTwoDigit >= 0 && idLastTwoDigit <= 30) {
+        if (event.getMessageId() >= 0 && event.getMessageId() <= 100) {
             throw new DelayException("Test Event");
         }
+        System.out.println("Message: " + event.getMessage());
     }
 }

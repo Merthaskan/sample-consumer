@@ -12,7 +12,7 @@ rabbit:
     multiplier: 1.0
     max-interval: 2000
   recover:
-    delayed-message-queue-prefix: .delayed_message
+    delayed-message-queue-postfix: .delayed_message
     delay-millisecond: 60000
   event:
     exchange: trendyol.demo.exchange

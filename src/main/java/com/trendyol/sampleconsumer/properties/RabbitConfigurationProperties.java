@@ -14,7 +14,7 @@ public class RabbitConfigurationProperties {
 
     @Data
     public static class RecoverProperty{
-        private String delayedMessageQueuePrefix;
+        private String delayedMessageQueuePostfix;
         private String delayMillisecond;
     }
 

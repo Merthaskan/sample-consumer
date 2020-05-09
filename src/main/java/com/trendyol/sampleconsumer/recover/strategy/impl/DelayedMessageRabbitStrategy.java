@@ -36,7 +36,7 @@ public class DelayedMessageRabbitStrategy implements RabbitStrategy {
 
     private void publish(Message message) {
         //Delay Queue Routing Key
-        String delayRoutingKey = message.getMessageProperties().getConsumerQueue() + configurationProperties.getRecover().getDelayedMessageQueuePrefix();
+        String delayRoutingKey = message.getMessageProperties().getConsumerQueue() + configurationProperties.getRecover().getDelayedMessageQueuePostfix();
         //Set TTL to Message
         message.getMessageProperties().setExpiration(String.valueOf(configurationProperties.getRecover().getDelayMillisecond()));
         this.errorTemplate.send(delayRoutingKey, message);

@@ -43,42 +43,6 @@ public class RabbitConfiguration {
     }
 
     @Bean
-    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    @Bean
-    @Primary
-    public RabbitTemplate rabbitTemplate(RabbitAdmin rabbitAdmin, Jackson2JsonMessageConverter jackson2JsonMessageConverter) {
-        RabbitTemplate rabbitTemplate = rabbitAdmin.getRabbitTemplate();
-        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter);
-        rabbitTemplate.setChannelTransacted(true);
-        return rabbitTemplate;
-    }
-
-    @Bean
-    public RetryOperationsInterceptor mqRetryInterceptor(MessageRecoverer messageRecoverer, RabbitConfigurationProperties configurationProperties) {
-        return RetryInterceptorBuilder.stateless()
-                .maxAttempts(configurationProperties.getRetryPolicy().getMaxAttempt())
-                .backOffOptions(configurationProperties.getRetryPolicy().getInitialInterval(),
-                        configurationProperties.getRetryPolicy().getMultiplier(),
-                        configurationProperties.getRetryPolicy().getMaxInterval())
-                .recoverer(messageRecoverer)
-                .build();
-    }
-
-    @Bean
-    public RabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory rabbitConnectionFactory,
-                                                                         Jackson2JsonMessageConverter jackson2JsonMessageConverter,
-                                                                         RetryOperationsInterceptor mqRetryInterceptor) {
-        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        factory.setConnectionFactory(rabbitConnectionFactory);
-        factory.setMessageConverter(jackson2JsonMessageConverter);
-        factory.setAdviceChain(mqRetryInterceptor);
-        return factory;
-    }
-
-    @Bean
     public Queue createConsumeQueue(RabbitAdmin rabbitAdmin, RabbitConfigurationProperties properties) {
         Queue consumeQueue = QueueBuilder.durable(properties.getEvent().getQueue()).build();
         consumeQueue.setAdminsThatShouldDeclare(rabbitAdmin);
@@ -106,5 +70,41 @@ public class RabbitConfiguration {
     @Bean
     public Binding createQueueExchangeBinding(RabbitConfigurationProperties properties){
         return new Binding(properties.getEvent().getQueue(),Binding.DestinationType.QUEUE,properties.getEvent().getExchange(),"#",null);
+    }
+
+    @Bean
+    public RetryOperationsInterceptor mqRetryInterceptor(MessageRecoverer messageRecoverer, RabbitConfigurationProperties configurationProperties) {
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(configurationProperties.getRetryPolicy().getMaxAttempt())
+                .backOffOptions(configurationProperties.getRetryPolicy().getInitialInterval(),
+                        configurationProperties.getRetryPolicy().getMultiplier(),
+                        configurationProperties.getRetryPolicy().getMaxInterval())
+                .recoverer(messageRecoverer)
+                .build();
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    @Primary
+    public RabbitTemplate rabbitTemplate(RabbitAdmin rabbitAdmin, Jackson2JsonMessageConverter jackson2JsonMessageConverter) {
+        RabbitTemplate rabbitTemplate = rabbitAdmin.getRabbitTemplate();
+        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter);
+        rabbitTemplate.setChannelTransacted(true);
+        return rabbitTemplate;
+    }
+
+    @Bean
+    public RabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory rabbitConnectionFactory,
+                                                                         Jackson2JsonMessageConverter jackson2JsonMessageConverter,
+                                                                         RetryOperationsInterceptor mqRetryInterceptor) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(rabbitConnectionFactory);
+        factory.setMessageConverter(jackson2JsonMessageConverter);
+        factory.setAdviceChain(mqRetryInterceptor);
+        return factory;
     }
 }
